@@ -16,13 +16,13 @@ class TaskCubit extends Cubit<List<Task>> {
   final DeleteTaskUseCase deleteTasksUseCase;
   final ToggleTaskUseCase toggleTaskUseCase;
 
-  TaskCubit(
-    this.getTasksUseCase,
-    this.createTasksUseCase,
-    this.updateTasksUseCase,
-    this.deleteTasksUseCase,
-    this.toggleTaskUseCase,
-  ) : super([]);
+  TaskCubit({
+    required this.getTasksUseCase,
+    required this.createTasksUseCase,
+    required this.updateTasksUseCase,
+    required this.deleteTasksUseCase,
+    required this.toggleTaskUseCase,
+  }) : super([]);
 
   Future<void> getTasks() async {
     final tasks = await getTasksUseCase.getTasks();
@@ -31,8 +31,7 @@ class TaskCubit extends Cubit<List<Task>> {
 
   Future<void> addTask(Task task) async {
     await createTasksUseCase.createTask(description: task.description);
-    state.add(task);
-    emit(List.of(state));
+    getTasks();
   }
 
   Future<void> updateTask(Task task) async {
@@ -40,16 +39,14 @@ class TaskCubit extends Cubit<List<Task>> {
     getTasks();
   }
 
-  void toggleTask(Task task) {
-    toggleTaskUseCase.toggleTask(task: task);
-    task.isCompleted = !task.isCompleted;
-    emit(List.of(state));
+  Future<void> toggleTask(Task task) async {
+    await toggleTaskUseCase.toggleTask(task: task);
+    getTasks();
   }
 
   Future<void> deleteTask(Task task) async {
     await deleteTasksUseCase.deleteTask(task: task);
-    state.remove(task);
-    emit(List.of(state));
+    getTasks();
   }
 
   @override

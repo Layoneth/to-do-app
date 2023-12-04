@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:get_it/get_it.dart';
 import 'package:isar/isar.dart';
 import 'package:path_provider/path_provider.dart';
@@ -21,7 +23,7 @@ Future<void> init() async {
     sl.registerSingletonAsync<Isar>(
       () async {
         final dir = await getApplicationDocumentsDirectory();
-        print('dir.path => ${dir.path}');
+        log('dir.path => ${dir.path}');
         return Isar.getInstance('default') ??
             await Isar.open(
               [TaskSchema],
@@ -35,7 +37,13 @@ Future<void> init() async {
 
   // Bloc
   sl.registerLazySingleton(
-    () => TaskCubit(sl(), sl(), sl(), sl(), sl()),
+    () => TaskCubit(
+      getTasksUseCase: sl(),
+      createTasksUseCase: sl(),
+      updateTasksUseCase: sl(),
+      deleteTasksUseCase: sl(),
+      toggleTaskUseCase: sl(),
+    ),
   );
 
   // Use cases

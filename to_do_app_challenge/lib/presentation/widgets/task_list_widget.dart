@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:to_do_app_challenge/dependency_injection/di_container.dart';
 import 'package:to_do_app_challenge/domain/models/task_model.dart';
 import 'package:to_do_app_challenge/presentation/task_cubit/task_cubit.dart';
 
@@ -38,51 +37,54 @@ class TaskItemWidget extends StatelessWidget {
       leading: Checkbox(
         value: task.isCompleted,
         onChanged: (value) {
-          sl<TaskCubit>().toggleTask(task);
+          context.read<TaskCubit>().toggleTask(task);
         },
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-              icon: const Icon(Icons.edit_road),
-              onPressed: () async {
-                final _controller =
-                    TextEditingController(text: task.description);
-                await showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text('Edit Task'),
-                      content: TextField(
-                        controller: _controller,
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            task.description = _controller.text;
-                            sl<TaskCubit>().updateTask(task);
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Save'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              }),
+            icon: const Icon(Icons.edit),
+            onPressed: () => _onEditTask(context),
+          ),
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () {
-              sl<TaskCubit>().deleteTask(task);
+              context.read<TaskCubit>().deleteTask(task);
             },
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _onEditTask(BuildContext context) async {
+    final controller = TextEditingController(text: task.description);
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Task'),
+          content: TextField(
+            controller: controller,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                task.description = controller.text;
+                context.read<TaskCubit>().updateTask(task);
+                Navigator.pop(context);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
