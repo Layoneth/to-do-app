@@ -1,16 +1,11 @@
 # to_do_app_challenge
 
-A new Flutter project.
+This project was created Flutter 3.16.2 so to run the project update Flutter version or use FVM.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+To run the project just:
+1. Clone the repo into your computer.
+2. Open it with your favorite IDE.
+3. Run it in debug mode.
+4. In this way you will see in the logs an [Isar url] to check if everything is modified well in the DB.
+5. Inside of the app you can Create, Read, Update and Delete the Tasks.
+6. As an extra, you can delete a Taks sliding the tasks from left to right or on the opposite way.

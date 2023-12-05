@@ -8,16 +8,23 @@ class TaskListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TaskCubit, List<Task>>(
+    return BlocBuilder<TaskCubit, TaskState>(
       builder: (context, state) {
-        if (state.isEmpty) return const Text('There are no tasks to do.');
+        if (state.tasks.isEmpty) {
+          return const Text('There are no tasks to do.');
+        } else if (state.isLoading) {
+          return const CircularProgressIndicator.adaptive();
+        }
 
         return ListView.builder(
-          itemCount: state.length,
+          itemCount: state.tasks.length,
           physics: const BouncingScrollPhysics(),
           itemBuilder: (context, index) {
-            final task = state[index];
-            return TaskItemWidget(task: task);
+            final task = state.tasks[index];
+            return TaskItemWidget(
+              task: task,
+              index: index,
+            );
           },
         );
       },
@@ -27,42 +34,80 @@ class TaskListWidget extends StatelessWidget {
 
 class TaskItemWidget extends StatelessWidget {
   final Task task;
+  final int index;
 
-  const TaskItemWidget({super.key, required this.task});
+  const TaskItemWidget({
+    super.key,
+    required this.task,
+    required this.index,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(task.description),
-      leading: Checkbox(
-        value: task.isCompleted,
-        onChanged: (value) {
-          context.read<TaskCubit>().toggleTask(task);
-        },
+    return Dismissible(
+      key: Key(task.id.toString()),
+      onDismissed: (direction) {
+        if (direction == DismissDirection.startToEnd) {
+          context.read<TaskCubit>().deleteTask(task, index);
+        } else if (direction == DismissDirection.endToStart) {
+          context.read<TaskCubit>().deleteTask(task, index);
+        }
+      },
+      background: Container(
+        color: Colors.red,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        alignment: Alignment.centerLeft,
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
       ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () => _onEditTask(context),
+      secondaryBackground: Container(
+        color: Colors.red,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        alignment: Alignment.centerRight,
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
+      ),
+      child: ListTile(
+        title: Text(
+          task.description,
+          style: TextStyle(
+            decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+            color: task.isCompleted ? Colors.grey : null,
           ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () {
-              context.read<TaskCubit>().deleteTask(task);
-            },
-          ),
-        ],
+        ),
+        leading: Checkbox(
+          value: task.isCompleted,
+          onChanged: (value) {
+            context.read<TaskCubit>().toggleTask(task);
+          },
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () => _onEditTask(context),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () =>
+                  context.read<TaskCubit>().deleteTask(task, index),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Future<void> _onEditTask(BuildContext context) async {
+  Future<void> _onEditTask(BuildContext contextApp) async {
     final controller = TextEditingController(text: task.description);
 
     await showDialog(
-      context: context,
+      context: contextApp,
       builder: (context) {
         return AlertDialog(
           title: const Text('Edit Task'),
@@ -77,7 +122,7 @@ class TaskItemWidget extends StatelessWidget {
             TextButton(
               onPressed: () {
                 task.description = controller.text;
-                context.read<TaskCubit>().updateTask(task);
+                contextApp.read<TaskCubit>().updateTask(task);
                 Navigator.pop(context);
               },
               child: const Text('Save'),

@@ -32,7 +32,7 @@ Future<void> init() async {
       },
     );
   } catch (e) {
-    //print(e);
+    log(e.toString());
   }
 
   // Bloc
