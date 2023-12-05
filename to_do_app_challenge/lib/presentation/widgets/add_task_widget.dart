@@ -15,21 +15,26 @@ class AddTaskWidget extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: TextField(
+            child: TextFormField(
               controller: _controller,
               decoration: const InputDecoration(hintText: 'Enter a new task'),
+              textInputAction: TextInputAction.done,
+              textCapitalization: TextCapitalization.sentences,
+              onFieldSubmitted: (value) => _addTask(context),
             ),
           ),
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              final task = Task(description: _controller.text);
-              _controller.clear();
-              BlocProvider.of<TaskCubit>(context).addTask(task);
-            },
+            onPressed: () => _addTask(context),
           ),
         ],
       ),
     );
+  }
+
+  void _addTask(BuildContext context) {
+    final task = Task(description: _controller.text);
+    _controller.clear();
+    context.read<TaskCubit>().addTask(task);
   }
 }
